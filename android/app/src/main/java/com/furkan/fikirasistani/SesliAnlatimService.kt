@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -45,14 +46,17 @@ class SesliAnlatimService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("SesliAnlatimService", "onStartCommand çağrıldı, extra dosya_adi=${intent?.getStringExtra(EK_DOSYA_ADI)}")
         bildirimiBaslat()
         val dosyaAdi = intent?.getStringExtra(EK_DOSYA_ADI)
         if (dosyaAdi == null) {
+            Log.w("SesliAnlatimService", "dosya_adi extra'sı yok, servis durduruluyor")
             stopSelf()
             return START_NOT_STICKY
         }
         Thread {
             val fikir = FikirDeposu.fikirGetir(dosyaAdi)
+            Log.d("SesliAnlatimService", "fikirGetir($dosyaAdi) sonucu: $fikir")
             isleyici.post {
                 if (fikir == null) {
                     stopSelf()

@@ -3,6 +3,7 @@ package com.furkan.fikirasistani
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -29,8 +30,10 @@ class FikirKontrolWorker(context: Context, params: WorkerParameters) : Coroutine
     override suspend fun doWork(): Result {
         return try {
             val dosyalar = FikirDeposu.fikirDosyalariniGetir()
+            Log.d("FikirKontrolWorker", "index.md'den okunan dosyalar: $dosyalar")
             val islenmemis = dosyalar.firstOrNull { !YerelDurum.islendiMi(applicationContext, it) }
-                ?: return Result.success()
+            Log.d("FikirKontrolWorker", "işlenmemiş dosya: $islenmemis")
+            if (islenmemis == null) return Result.success()
 
             val niyet = Intent(applicationContext, SesliAnlatimService::class.java).apply {
                 putExtra(SesliAnlatimService.EK_DOSYA_ADI, islenmemis)
@@ -40,8 +43,10 @@ class FikirKontrolWorker(context: Context, params: WorkerParameters) : Coroutine
             } else {
                 applicationContext.startService(niyet)
             }
+            Log.d("FikirKontrolWorker", "SesliAnlatimService başlatma isteği gönderildi: $islenmemis")
             Result.success()
         } catch (e: Exception) {
+            Log.e("FikirKontrolWorker", "doWork hata", e)
             Result.retry()
         }
     }

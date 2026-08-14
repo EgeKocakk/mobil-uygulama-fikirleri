@@ -10,6 +10,8 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,17 +38,30 @@ class MainActivity : AppCompatActivity() {
             text = "Mikrofon ve bildirim iznini ver"
             setOnClickListener { izinIsteyici.launch(gerekliIzinler()) }
         }
+        val simdiKontrolEtButonu = Button(this).apply {
+            text = "Şimdi kontrol et"
+            setOnClickListener {
+                WorkManager.getInstance(this@MainActivity)
+                    .enqueue(OneTimeWorkRequestBuilder<FikirKontrolWorker>().build())
+                durumMetni.text = "Kontrol ediliyor..."
+            }
+        }
         durumMetni = TextView(this).apply {
             textSize = 14f
             setPadding(0, 48, 0, 0)
         }
         kok.addView(aciklama)
         kok.addView(izinButonu)
+        kok.addView(simdiKontrolEtButonu)
         kok.addView(durumMetni)
         setContentView(kok)
 
         FikirKontrolWorker.zamanla(this)
         izinleriKontrolEt()
+
+        if (intent?.getBooleanExtra("hemenKontrolEt", false) == true) {
+            WorkManager.getInstance(this).enqueue(OneTimeWorkRequestBuilder<FikirKontrolWorker>().build())
+        }
     }
 
     override fun onResume() {
