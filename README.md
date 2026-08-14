@@ -12,9 +12,17 @@ ve bu fikirleri sesli olarak sunacak Android uygulamasının kodunu barındırı
    - Kullanıcı reklam izlemeye neden mecbur kalsın?
    - Kullanıcı uygulama içi satın almaya neden ihtiyaç duysun?
 
-2. **Android uygulaması** (`android/` klasörü, henüz kurulmadı) — telefonda arka planda çalışır,
-   yeni fikir hazır olduğunda sesli olarak sorar ("Furkan, ordamısın?"), cevaba göre fikri
-   anlatır, erteler veya bekleyen fikirler listesine ekler.
+2. **Android uygulaması** (`android/` klasörü) — telefonda arka planda çalışır, her 15 dakikada
+   bir depoyu kontrol eder (Firebase/push kullanmaz, basit polling). Yeni fikir bulduğunda sesli
+   olarak sorar ("Furkan, ordamısın?"):
+   - 15 saniye cevap yoksa bir kez daha sorar.
+   - Yine cevap yoksa sessiz kalır ve fikri cihazdaki `bekleyen_fikirler.txt` dosyasına ekler.
+   - "Buradayım" derse fikri sesli anlatır.
+   - "15 dakika/yarım saat sonra tekrar sor" derse o süre sonra aynı soruyu tekrar sorar.
+
+   Android Studio ile açmak için: `android/` klasörünü Android Studio'da "Open" ile aç, Gradle
+   senkronizasyonunu bekle, gerçek bir Android cihaza (emülatörde mikrofon/konuşma tanıma
+   güvenilir çalışmaz) yükleyip çalıştır. İlk açılışta mikrofon ve bildirim izni vermen gerekir.
 
 ## Klasör yapısı
 
